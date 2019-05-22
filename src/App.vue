@@ -8,7 +8,7 @@
         <h2 class="title is-2">Train</h2>
         <h4 class="title is-4">Rate the smoothies according to your taste</h4>
         <ul class="train-list">
-          <li v-for="item in trainData" :key="item.uuid">
+          <li v-for="item in trainingData" :key="item.uuid">
             <Smoothie :ingredients="item.smoothie"></Smoothie>
             <StarRating v-model="item.score"></StarRating>
           </li>
@@ -20,60 +20,14 @@
     <section class="predict">
       <div class="section-content has-text-centered">
         <h2 class="title is-2">Predict</h2>
-        <h4 class="title is-4">Build a smoothie. The model will predict how much will you like it 🙌</h4>
-        <div class="predict-selectors">
-          <ul class="predict-list">
-            <li class="select is-large">
-              <select v-model="predictIngredients[0]">
-                <option
-                  v-for="(ingredient, key) in ingredients"
-                  :key="key"
-                  :value="key"
-                >{{ingredient}}</option>
-              </select>
-            </li>
-            <li class="select is-large">
-              <select v-model="predictIngredients[1]">
-                <option
-                  v-for="(ingredient, key) in ingredients"
-                  :key="key"
-                  :value="key"
-                >{{ingredient}}</option>
-              </select>
-            </li>
-            <li class="select is-large">
-              <select v-model="predictIngredients[2]">
-                <option
-                  v-for="(ingredient, key) in ingredients"
-                  :key="key"
-                  :value="key"
-                >{{ingredient}}</option>
-              </select>
-            </li>
-            <li class="select is-large">
-              <select v-model="predictIngredients[3]">
-                <option
-                  v-for="(ingredient, key) in ingredients"
-                  :key="key"
-                  :value="key"
-                >{{ingredient}}</option>
-              </select>
-            </li>
-          </ul>
-          <button
-            v-if="!trained"
-            disabled
-            @click="onClickOnPredict()"
-            class="button is-large is-primary"
-          >Predict</button>
-          <button
-            v-if="trained"
-            @click="onClickOnPredict()"
-            class="button is-large is-primary"
-          >Predict</button>
+        <div class="predict-examples">
+          <div class="predict-example">
+            <SmoothieScorePredict :trainedData="trainedData"></SmoothieScorePredict>
+          </div>
+          <div class="predict-example">
+            <FavoriteSmoothiePredict :trainedData="trainedData"></FavoriteSmoothiePredict>
+          </div>
         </div>
-        <StarRating :value="prediction"></StarRating>
-        <span class="prediction-score">{{parseInt(prediction * 100)}}%</span>
       </div>
     </section>
     <section class="section-info has-text-centered">
@@ -94,45 +48,38 @@
 <script>
 import Smoothie from "./components/Smoothie";
 import StarRating from "./components/StarRating";
+import SmoothieScorePredict from "./components/SmoothieScorePredict";
+import FavoriteSmoothiePredict from "./components/FavoriteSmoothiePredict";
 import * as uuid from "uuid";
 import { RandomSmoothieGenerator } from "./services/RandomSmoothieGenerator";
 import { Ingredient } from "./constants/Ingredient";
-import { SmoothieNeuralNet } from "./services/SmoothieNeuralNet";
 
 export default {
   name: "app",
   components: {
     Smoothie,
-    StarRating
+    StarRating,
+    SmoothieScorePredict,
+    FavoriteSmoothiePredict
   },
   data() {
     return {
-      net: "",
       trained: false,
-      trainData: new Array(20).fill("").map(() => ({
+      trainingData: new Array(20).fill("").map(() => ({
         uuid: uuid.v4(),
         smoothie: RandomSmoothieGenerator.generateRandomSmoothie(4),
         score: 0
       })),
-      prediction: 0,
+      trainedData: [],
       ingredients: Ingredient,
-      predictIngredients: []
     };
   },
   methods: {
     onClickOnTrain() {
-      this.net = new SmoothieNeuralNet();
-      this.net.train(this.trainData);
-      this.trained = true;
-    },
-    onClickOnPredict() {
-      if (!this.trained) {
-        return;
-      }
-      this.prediction = this.net.predict(this.predictIngredients).score;
+      this.trainedData = [...this.trainingData];
     },
     onClickOnReset() {
-      this.trainData.forEach(item => (item.score = 0));
+      this.trainingData.forEach(item => (item.score = 0));
     }
   }
 };
@@ -182,21 +129,12 @@ export default {
   }
   section.predict {
     background: #effab4;
-    .predict-selectors {
+    .predict-examples {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      .predict-list {
-        li {
-          margin: 10px;
-        }
+      .predict-example {
+        flex: 1;
+        padding: 40px;
       }
-      .button {
-        margin: 10px;
-      }
-    }
-    .prediction-score {
-      font-size: 30px;
     }
   }
   section.section-info {

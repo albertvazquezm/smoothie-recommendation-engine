@@ -1,7 +1,7 @@
 import {NeuralNetwork} from 'brain.js';
 import { Ingredient } from '../constants/Ingredient';
 
-export class SmoothieNeuralNet {
+export class SmoothieScorePredictor {
     constructor() {
         this.net = new NeuralNetwork({hiddenLayers: [3], activation: 'sigmoid'});
     }
