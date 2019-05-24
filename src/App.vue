@@ -121,15 +121,17 @@ export default {
   },
   methods: {
     onClickOnTrain() {
-      this.net = new SmoothieNeuralNet();
-      this.net.train(this.trainData);
+      SmoothieNeuralNet.train(this.trainData);
       this.trained = true;
     },
     onClickOnPredict() {
       if (!this.trained) {
         return;
       }
-      this.prediction = this.net.predict(this.predictIngredients).score;
+      SmoothieNeuralNet.predict(this.predictIngredients).then(res => {
+        console.log('prom resolved', res);
+        this.prediction = res;
+      })
     },
     onClickOnReset() {
       this.trainData.forEach(item => (item.score = 0));

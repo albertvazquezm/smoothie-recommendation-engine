@@ -1,11 +1,18 @@
 import {NeuralNetwork} from 'brain.js';
 import { Ingredient } from '../constants/Ingredient';
 
+let onTrain;
+let onPredict;
+let globRes;
+
 export class SmoothieNeuralNet {
-    constructor() {
-        this.net = new NeuralNetwork({hiddenLayers: [3], activation: 'sigmoid'});
+    static setOnTrain(cb) {
+        onTrain = cb;
     }
-    train(smoothies) {
+    static setOnPredict(cb) {
+        onPredict = cb;
+    }
+    static train(smoothies) {
         const trainingData = smoothies.map(smoothie => {
             const input = {};
             Object.keys(Ingredient).forEach((key) => {
@@ -16,14 +23,18 @@ export class SmoothieNeuralNet {
                 output: {score: smoothie.score}
             }
         });
-        this.net.train(trainingData);
+        onTrain(trainingData);
     }
-    predict(smoothie) {
+    static predict(smoothie) {
         const input = {};
         Object.keys(Ingredient).forEach((key) => {
             input[key] = smoothie.indexOf(key) !== -1 ? 1 : 0;
         });
-        return this.net.run(input)
+        onPredict(input);
+        return new Promise(res => globRes = res);
+    }
+    static onResult(score) {
+        globRes(score);
     }
 }
 
