@@ -11,7 +11,7 @@
     "brain.js": "^1.6.1",
     "bulma": "^0.7.4",
     "core-js": "^2.6.5",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "random-number": "0.0.9",
     "sass-loader": "^7.1.0",
     "uuid": "^3.3.2",
